@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,6 +47,7 @@ class TransfersApplicationTests {
 			log.log(Level.SEVERE, "Exception: ", ex);
 		}
 	}
+	ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
 	@BeforeEach
 		void setUp() throws SQLException {
 		H2Database.getInstance().fillStartDatabase();
@@ -87,12 +89,13 @@ class TransfersApplicationTests {
         log.log(Level.INFO, "testTransfer start");
 	ArrayList<User> actualUsers = new ArrayList();
 	ArrayList<User> expectedUsers = H2Database.getInstance().transfer(1, 4, 500);
-	User user = new User("name4", "surname4", 4, 500);
+	User user = context.getBean("testUserBean1", User.class);
 		actualUsers.add(user);
-	user = new User("name1", "surname1", 1, 1500);
+		user = context.getBean("testUserBean2", User.class);
 		actualUsers.add(user);
 	Assert.assertEquals(expectedUsers, actualUsers);
         log.log(Level.INFO, "testTransfer over");
+        context.close();
 	}
 	@Test
 	void testNegativeBalanceException() throws SQLException, SelfTransferException, NegativeTransferValue, NonexistentUserException {
