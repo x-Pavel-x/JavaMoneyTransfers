@@ -6,6 +6,7 @@ import com.example.transfers.classes.exceptions.NegativeBalanceException;
 import com.example.transfers.classes.exceptions.NegativeTransferValue;
 import com.example.transfers.classes.exceptions.NonexistentUserException;
 import com.example.transfers.classes.exceptions.SelfTransferException;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileInputStream;
@@ -30,17 +31,20 @@ public class TransferController {
             log.log(Level.SEVERE, "Exception: ", ex);
         }
     }
+    private static ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+    H2Database h2Database = context.getBean("h2DatabaseBean", H2Database.class);
     @GetMapping
     public ArrayList<User> show() throws SQLException {
+
         log.log(Level.INFO, "GET request ");
-        return H2Database.getInstance().showAllUsers();
+        return h2Database.showAllUsers();
     }
     @PatchMapping
     public ArrayList<User> moneyTransfer(@RequestBody Map <String, String> transferInfo) {
        log.log(Level.INFO, "PATCH request ");
        ArrayList<User> result = new ArrayList();
        try{
-           result = H2Database.getInstance().transfer(
+           result = h2Database.transfer(
                 Integer.parseInt(transferInfo.get("idReceiver")),
                 Integer.parseInt(transferInfo.get("idSender")),
                 Long.parseLong(transferInfo.get("money")));

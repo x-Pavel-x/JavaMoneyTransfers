@@ -26,9 +26,6 @@ public class User {
     public void setBalance(long balance) {
         this.balance = balance;
     }
-    public boolean ra(User o){
-        return this.id==o.id;
-    }
     @Override
     public boolean equals(Object o){
         return this.hashCode() == o.hashCode();

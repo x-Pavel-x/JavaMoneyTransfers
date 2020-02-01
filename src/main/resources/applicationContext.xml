@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans  xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="testUserBean1"
+          class="com.example.transfers.classes.User"
+          lazy-init="true">
+        <constructor-arg index="0" value="name4"/>
+        <constructor-arg index="1" value="surname4"/>
+        <constructor-arg index="2" value="4"/>
+        <constructor-arg index="3" value="500"/>
+    </bean>
+    <bean id="testUserBean2"
+          class="com.example.transfers.classes.User"
+          lazy-init="true">
+        <constructor-arg index="0" value="name1"/>
+        <constructor-arg index="1" value="surname1"/>
+        <constructor-arg index="2" value="1"/>
+        <constructor-arg index="3" value="1500"/>
+    </bean>
+    <bean id="h2ConnectionBean"
+          class="com.example.transfers.classes.databases.h2.H2Connection"
+          factory-method="getInstance">
+        <constructor-arg value="jdbc:h2:mem:"/>
+    </bean>
+    <bean id="h2DatabaseBean"
+          class="com.example.transfers.classes.databases.h2.H2Database"
+          factory-method="getInstance">
+    <constructor-arg ref="h2ConnectionBean"/>
+    </bean>
+</beans>

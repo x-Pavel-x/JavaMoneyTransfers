@@ -6,6 +6,7 @@ import com.example.transfers.classes.exceptions.NegativeBalanceException;
 import com.example.transfers.classes.exceptions.NegativeTransferValue;
 import com.example.transfers.classes.exceptions.NonexistentUserException;
 import com.example.transfers.classes.exceptions.SelfTransferException;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,13 +33,13 @@ public class H2Database implements Transferable {
     }
         private static H2Database instance;
         private Connection db;
-        private H2Database() throws SQLException{
+        private H2Database(H2Connection h2Connection) {
             log.log(Level.INFO, "Create new H2 database");
-            this.db = H2Connection.getInstance().getH2Connection();
+            this.db = h2Connection.getH2Connection();
         }
-        public static H2Database getInstance() throws SQLException{
+        public static H2Database getInstance(H2Connection h2Connection) {
             if(instance == null) {
-                instance = new H2Database();
+                instance = new H2Database(h2Connection);
             }
             return instance;
         }

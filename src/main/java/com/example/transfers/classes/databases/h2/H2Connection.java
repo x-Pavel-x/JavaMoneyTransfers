@@ -21,15 +21,22 @@ public class H2Connection {
         }
     }
     private static H2Connection instance;
-    private H2Connection(){}
-    public static H2Connection getInstance(){
+    private Connection connection;
+    private H2Connection(String connectionUrl) {
+        log.log(Level.INFO, "Create new connection to H2 ");
+        try{
+        this.connection = DriverManager.getConnection(connectionUrl);
+        }catch (SQLException ex){
+            log.log(Level.SEVERE, "Exception: ", ex);
+        }
+    }
+    protected static H2Connection getInstance(String connectionUrl) {
         if(instance == null) {
-            instance = new H2Connection();
+            instance = new H2Connection(connectionUrl);
         }
         return instance;
     }
-    public Connection getH2Connection() throws SQLException {
-        log.log(Level.INFO, "Create new connection to H2 ");
-        return DriverManager.getConnection("jdbc:h2:mem:");
+    protected Connection getH2Connection() {
+        return connection;
     }
 }

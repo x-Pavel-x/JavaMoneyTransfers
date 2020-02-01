@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,13 +47,15 @@ class TransfersApplicationTests {
 			log.log(Level.SEVERE, "Exception: ", ex);
 		}
 	}
+	private static ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+	private static H2Database h2Database = context.getBean("h2DatabaseBean", H2Database.class);;
 	@BeforeEach
-		void setUp() throws SQLException {
-		H2Database.getInstance().fillStartDatabase();
+		void setUp() {
+		h2Database.fillStartDatabase();
 	}
 	@AfterEach
-		void tearDown() throws SQLException{
-		H2Database.getInstance().dropTable();
+		void tearDown() {
+		h2Database.dropTable();
 	}
 	@Autowired
 	private MockMvc mockMvc;
@@ -83,23 +86,24 @@ class TransfersApplicationTests {
         log.log(Level.INFO, "testPatch over");
 	}
 	@Test
-	void testTransfer() throws SQLException, NegativeBalanceException, SelfTransferException, NegativeTransferValue, NonexistentUserException {
+	void testTransfer() throws NegativeBalanceException, SelfTransferException, NegativeTransferValue, NonexistentUserException {
         log.log(Level.INFO, "testTransfer start");
 	ArrayList<User> actualUsers = new ArrayList();
-	ArrayList<User> expectedUsers = H2Database.getInstance().transfer(1, 4, 500);
-	User user = new User("name4", "surname4", 4, 500);
+	ArrayList<User> expectedUsers = h2Database.transfer(1, 4, 500);
+	User user = context.getBean("testUserBean1", User.class);
 		actualUsers.add(user);
-	user = new User("name1", "surname1", 1, 1500);
+		user = context.getBean("testUserBean2", User.class);
 		actualUsers.add(user);
 	Assert.assertEquals(expectedUsers, actualUsers);
         log.log(Level.INFO, "testTransfer over");
+        context.close();
 	}
 	@Test
-	void testNegativeBalanceException() throws SQLException, SelfTransferException, NegativeTransferValue, NonexistentUserException {
+	void testNegativeBalanceException() throws SelfTransferException, NegativeTransferValue, NonexistentUserException {
         log.log(Level.INFO, "testNegativeBalanceException start");
 	    NegativeBalanceException negativeBalanceException = null;
 		try{
-			H2Database.getInstance().transfer(1, 4, 5000000);
+			h2Database.transfer(1, 4, 5000000);
 		}catch (NegativeBalanceException ex){
 			negativeBalanceException = ex;
             log.log(Level.WARNING, "Exception: ", ex);
@@ -108,11 +112,11 @@ class TransfersApplicationTests {
         log.log(Level.INFO, "testNegativeBalanceException over");
 	}
 	@Test
-	void testSelfTransferException() throws SQLException, NegativeBalanceException, NegativeTransferValue, NonexistentUserException {
+	void testSelfTransferException() throws NegativeBalanceException, NegativeTransferValue, NonexistentUserException {
         log.log(Level.INFO, "testSelfTransferException start");
 	    SelfTransferException selfTransferException = null;
 		try{
-			H2Database.getInstance().transfer(1, 1, 100);
+			h2Database.transfer(1, 1, 100);
 		}catch (SelfTransferException ex){
 			selfTransferException = ex;
             log.log(Level.WARNING, "Exception: ", ex);
@@ -121,11 +125,11 @@ class TransfersApplicationTests {
         log.log(Level.INFO, "testSelfTransferException over");
 	}
 	@Test
-	void testNegativeTransferValue() throws SQLException, NegativeBalanceException, SelfTransferException, NonexistentUserException {
+	void testNegativeTransferValue() throws NegativeBalanceException, SelfTransferException, NonexistentUserException {
         log.log(Level.INFO, "testNegativeTransferValue start");
 	    NegativeTransferValue negativeTransferValue = null;
 		try{
-			H2Database.getInstance().transfer(1, 4, -500);
+			h2Database.transfer(1, 4, -500);
 		}catch (NegativeTransferValue ex){
 			negativeTransferValue = ex;
             log.log(Level.WARNING, "Exception: ", ex);
@@ -134,25 +138,25 @@ class TransfersApplicationTests {
         log.log(Level.INFO, "testNegativeTransferValue over");
 	}
 	@Test
-	void NonexistentUserException() throws SQLException, NegativeBalanceException, SelfTransferException, NegativeTransferValue {
+	void NonexistentUserException() throws NegativeBalanceException, SelfTransferException, NegativeTransferValue {
         log.log(Level.INFO, "NonexistentUserException start");
 	    NonexistentUserException nonexistentUserException1 = null;
 		NonexistentUserException nonexistentUserException2 = null;
 		NonexistentUserException nonexistentUserException3 = null;
 		try{
-			H2Database.getInstance().transfer(1, 8, 50);
+			h2Database.transfer(1, 8, 50);
 		}catch (NonexistentUserException ex){
 			nonexistentUserException1 = ex;
             log.log(Level.WARNING, "Exception: ", ex);
 		}
 		try{
-			H2Database.getInstance().transfer(7, 2, 50);
+			h2Database.transfer(7, 2, 50);
 		}catch (NonexistentUserException ex){
 			nonexistentUserException2 = ex;
             log.log(Level.WARNING, "Exception: ", ex);
 		}
 		try{
-			H2Database.getInstance().transfer(9, 7, 50);
+			h2Database.transfer(9, 7, 50);
 		}catch (NonexistentUserException ex){
 			nonexistentUserException3 = ex;
             log.log(Level.WARNING, "Exception: ", ex);
