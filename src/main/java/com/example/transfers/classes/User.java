@@ -1,5 +1,7 @@
 package com.example.transfers.classes;
 
+import java.util.Objects;
+
 public class User {
     String name;
     String surname;
@@ -26,12 +28,19 @@ public class User {
     public void setBalance(long balance) {
         this.balance = balance;
     }
+
     @Override
-    public boolean equals(Object o){
-        return this.hashCode() == o.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return name.equals(user.name) &&
+                surname.equals(user.surname) &&
+                id.equals(user.id) &&
+                balance.equals(user.balance);
     }
     @Override
-    public int hashCode(){
-        return this.name.hashCode()+this.surname.hashCode()+balance.hashCode()+id.hashCode();
+    public int hashCode() {
+        return Objects.hash(name, surname, id, balance);
     }
 }
